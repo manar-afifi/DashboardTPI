@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
 
 const API_URL = "https://opensky-network.org/api/states/all";
 
@@ -55,6 +57,13 @@ const Dashboard = () => {
             console.error("Erreur lors de la récupération des vols :", error);
         }
     };
+    // Définition de l'icône personnalisée pour l'avion ✈️
+    const planeIcon = new L.Icon({
+        iconUrl: "https://cdn-icons-png.flaticon.com/512/3410/3410897.png", // Remplace par une URL valide
+        iconSize: [30, 30], // Taille de l'icône
+        iconAnchor: [15, 15], // Point d'ancrage au centre
+        popupAnchor: [0, -15], // Position du popup
+    });
 
     return (
         <Container>
@@ -127,7 +136,7 @@ const Dashboard = () => {
                 {flights
                     .filter(flight => flight.latitude !== 0 && flight.longitude !== 0)
                     .map((flight) => (
-                        <Marker key={flight.id} position={[flight.latitude, flight.longitude]}>
+                        <Marker key={flight.id} position={[flight.latitude, flight.longitude]}  icon={planeIcon}>
                             <Popup>
                                 <strong>✈️ {flight.callsign}</strong> <br />
                                 Pays: {flight.country} <br />
