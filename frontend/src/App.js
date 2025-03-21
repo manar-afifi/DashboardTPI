@@ -4,6 +4,9 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard"; // Page principale après connexion
 import Profile from "./components/Profile";
 import EditProfilePage from "./components/EditProfilePage";
+import Statistics from "./components/Statistics";
+import UploadData from "./components/UploadData";
+import GenerateKPI from "./components/GenerateKPI";
 
 function App() {
     return (
@@ -15,6 +18,9 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="*" element={<Login />} />
                 <Route path="/edit-profile" element={<EditProfilePage />} />
+                <Route path="/statistics" element={<Statistics />} />
+                <Route path="/upload" element={<UploadData />} />
+                <Route path="/generate-kpi" element={<GenerateKPI />} />
             </Routes>
         </Router>
     );

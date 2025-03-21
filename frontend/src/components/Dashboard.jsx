@@ -46,7 +46,7 @@ const Dashboard = () => {
                         transponder: flight[14] || "N/A",
                         onGround: flight[15] ? "Oui" : "Non",
                     }))
-                    .slice(0, 50);
+                    .slice(0, 100);
 
                 setFlights(filteredFlights);
                 // Stocker les données en cache
@@ -78,15 +78,18 @@ const Dashboard = () => {
                     <ul>
                         <li onClick={() => navigate("/")}>🏠 Accueil</li>
                         <li onClick={() => navigate("/profile")}>👤 Profil</li>
+                        <li onClick={() => navigate("/statistics")}> 📊 Dashboard</li>
+                        <li onClick={() => navigate("/upload")}> 📊 Data</li>
                         <li onClick={() => {
                             localStorage.removeItem("token");
                             navigate("/login");
-                        }}>🚪 Déconnexion</li>
+                        }}>🚪 Déconnexion
+                        </li>
                     </ul>
                 </SidebarContent>
             </Sidebar>
 
-            <Title>✈️ Dashboard - OpenSky Network</Title>
+            <Title>✈️ Dashboard - Aviation</Title>
 
             <TableContainer>
                 <Table>
