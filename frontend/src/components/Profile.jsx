@@ -34,6 +34,7 @@ const Profile = () => {
     }
 
     return (
+        <PageWrapper>
         <ProfileContainer>
             <ProfileCard>
                 <ProfileLeft>
@@ -63,12 +64,13 @@ const Profile = () => {
 
                     {/* ✅ Espacement amélioré entre les boutons */}
                     <ButtonContainer>
-                        <Button onClick={() => navigate("/edit-profile")}>✏️ Modifier mon profil</Button>
-                        <Button onClick={() => navigate("/dashboard")}>🏠 Retour au Dashboard</Button>
+                        <Button onClick={() => navigate("/edit-profile")}>Modifier mon profil</Button>
+                        <Button onClick={() => navigate("/dashboard")}>Retour au Dashboard</Button>
                     </ButtonContainer>
                 </ProfileRight>
             </ProfileCard>
         </ProfileContainer>
+        </PageWrapper>
     );
 };
 
@@ -120,7 +122,7 @@ const ProfileRight = styled.div`
 `;
 
 const Form = styled.div`
-    display: flex;
+    
     flex-direction: column;
     gap: 10px;
     background: #f8f8f8;
@@ -156,7 +158,7 @@ const ButtonContainer = styled.div`
 `;
 
 const Button = styled.button`
-    background-color: #1db954;
+    background-color: #4e0453;
     color: white;
     padding: 12px 15px;
     border: none;
@@ -168,7 +170,7 @@ const Button = styled.button`
     transition: background 0.3s ease, transform 0.2s ease;
 
     &:hover {
-        background-color: #14833b;
+        background-color: #77096e;
         transform: translateY(-2px);
     }
 `;
@@ -179,3 +181,13 @@ const Loading = styled.div`
     text-align: center;
     margin-top: 50px;
 `;
+const PageWrapper = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #330125, #000000);
+    color: white;
+    height: 100vh;
+    
+`;
+

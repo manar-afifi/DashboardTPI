@@ -44,6 +44,16 @@ dependencies {
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	implementation 'org.apache.poi:poi:5.2.3'
+	implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // Pour gérer les JSON avec Jackson
+
+
+
 }
 
 tasks.named('test') {

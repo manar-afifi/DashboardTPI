@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import backgroundImage from "../assets/EAiH.gif"; // Assurez-vous d'avoir l'image ici
+import backgroundImage from "../assets/img_6.png"; // Assurez-vous d'avoir l'image ici
 
 const Register = () => {
     const [nom, setNom] = useState("");
@@ -45,7 +45,7 @@ const Register = () => {
     return (
         <Container>
             <FormBox>
-                <Title>✈️ Créer un compte</Title>
+                <Title> Créer un compte</Title>
                 <Form onSubmit={handleRegister}>
                     <Input
                         type="text"
@@ -119,7 +119,7 @@ const FormBox = styled.div`
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
     border-radius: 15px;
-    box-shadow: 0px 4px 20px rgba(0, 173, 255, 0.5);
+    box-shadow: 0px 4px 20px rgba(255, 5, 251, 0.5);
     text-align: center;
     color: white;
     z-index: 1;
@@ -162,7 +162,7 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
-    background: linear-gradient(90deg, #007bff, #00d4ff);
+    background: linear-gradient(90deg, #007bff, #e008ef);
     color: white;
     padding: 14px;
     border: none;
@@ -175,7 +175,7 @@ const Button = styled.button`
     box-shadow: 0px 0px 10px rgba(0, 173, 255, 0.5);
 
     &:hover {
-        background: linear-gradient(90deg, #0056b3, #00a2ff);
+        background: linear-gradient(90deg, #7100b3, #de07f6);
         transform: scale(1.02);
     }
 `;

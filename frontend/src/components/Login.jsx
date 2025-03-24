@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import backgroundImage from "../assets/img.png";
+import backgroundImage from "../assets/img_6.png";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -45,26 +45,35 @@ const Login = () => {
     return (
         <Container>
             {/* Section gauche avec l'image agrandie */}
-            <LeftSection />
+            <LeftSection>
+                <OverlayText>
+                    <h1>Créez des Dashboards Visuellement Impactants</h1>
+                    <p>
+                        Générez des tableaux de bord dynamiques, visualisez vos données en temps réel et construisez des cartes interactives en quelques clics ✨
+                    </p>
+                </OverlayText>
+            </LeftSection>
+
+
 
             {/* Section droite avec le formulaire */}
             <RightSection>
                 <LoginBox>
-                    <Logo>✈️ Aviation Tracker</Logo>
+                    <Logo>🔥 C'est parti !</Logo>
                     <h2>Connexion</h2>
                     <Form onSubmit={handleLogin}>
-                        <Label>Email Address</Label>
+                        <Label>Adresse e-mail</Label>
                         <Input
                             type="email"
-                            placeholder="Enter Your Email"
+                            placeholder="Entrez votre adresse e-mail"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
                         />
-                        <Label>Set Password</Label>
+                        <Label>Définir le mot de passe</Label>
                         <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder="Enter Password"
+                            placeholder="Entrer le mot de passe"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -97,15 +106,58 @@ export default Login;
 const Container = styled.div`
     display: flex;
     height: 100vh;
-    background: #000000;
+    background: #010315;
 `;
 
 const LeftSection = styled.div`
-    flex: 1.2;
-    background: url(${backgroundImage}) center/cover no-repeat;
+    flex: 1.95;
+    position: relative;
+    background: url(${backgroundImage}) center center no-repeat;
+    background-size: contain;
     height: 100vh;
-    filter: brightness(80%); /* 🔹 Assombrit légèrement pour fusionner avec le noir */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #010413;
+    overflow: hidden;
 `;
+const OverlayText = styled.div`
+  position: absolute;
+  top: 80px;
+  left: 80px;
+  max-width: 500px;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #f472d0;
+    margin-bottom: 10px;
+    line-height: 1.3;
+    text-shadow: 2px 2px 6px #000;
+  }
+
+  p {
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: #f9fafb;
+    line-height: 1.6;
+    text-shadow: 1px 1px 4px #000;
+  }
+
+  @media (max-width: 768px) {
+    top: 40px;
+    left: 20px;
+    h1 {
+      font-size: 1.8rem;
+    }
+    p {
+      font-size: 1rem;
+    }
+  }
+`;
+
+
+
 
 const RightSection = styled.div`
     flex: 0.8;
@@ -115,16 +167,22 @@ const RightSection = styled.div`
 `;
 
 const glow = keyframes`
-  0% { box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.3); }
-  50% { box-shadow: 0px 0px 20px rgba(0, 123, 255, 0.7); }
-  100% { box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.3); }
+    0% {
+        box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0px 0px 20px rgb(216, 15, 199);
+    }
+    100% {
+        box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.3);
+    }
 `;
 
 const LoginBox = styled.div`
     width: 380px;
     padding: 30px;
     background: rgba(20, 20, 20, 0.9);
-    box-shadow: 0px 4px 10px rgb(4, 43, 250);
+    box-shadow: 0px 4px 10px rgb(155, 47, 147);
     backdrop-filter: blur(5px);
     text-align: center;
     border-radius: 12px;
@@ -203,11 +261,11 @@ const Divider = styled.p`
 `;
 
 const SignupButton = styled(Button)`
-    background: linear-gradient(90deg, #eec00c, #41c800);
+    background: linear-gradient(90deg, #9a2e91, #1580f8);
     color: white;
 
     &:hover {
-        background: #194706;
+        background: #993095;
     }
 `;
 

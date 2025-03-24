@@ -1,76 +1,38 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-
-const API_URL = "https://opensky-network.org/api/states/all";
+import axios from "axios";
 
 const Dashboard = () => {
-    const [flights, setFlights] = useState([]);
-    const [sidebarOpen, setSidebarOpen] = useState(false); // Gère l'état du sidebar
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const [user, setUser] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (!token) {
+        const storedUser = localStorage.getItem("user");
+
+        if (!token || !storedUser) {
             navigate("/login");
-        }
+        } else {
+            const parsedUser = JSON.parse(storedUser);
+            const userId = parsedUser?.idUtilisateur;
 
-        fetchFlights();
-        const interval = setInterval(fetchFlights, 600000); // Actualisation toutes les 30 sec
-        return () => clearInterval(interval);
-    }, [navigate]);
-
-    const fetchFlights = async () => {
-        try {
-            const response = await fetch(API_URL);
-            const data = await response.json();
-
-            if (data.states) {
-                const filteredFlights = data.states
-                    .filter(flight => flight[5] !== null && flight[6] !== null)
-                    .map(flight => ({
-                        id: flight[0],
-                        callsign: flight[1]?.trim() || "Inconnu",
-                        country: flight[2] || "N/A",
-                        longitude: flight[5] || 0,
-                        latitude: flight[6] || 0,
-                        altitude: flight[7] || 0,
-                        velocity: flight[9] || 0,
-                        heading: flight[10] || "N/A",
-                        verticalRate: flight[11] || "N/A",
-                        barometricAltitude: flight[13] || "N/A",
-                        transponder: flight[14] || "N/A",
-                        onGround: flight[15] ? "Oui" : "Non",
-                    }))
-                    .slice(0, 100);
-
-                setFlights(filteredFlights);
-                // Stocker les données en cache
-                localStorage.setItem("flightsData", JSON.stringify(filteredFlights));
-                localStorage.setItem("lastFetchTime", Date.now());
+            if (userId) {
+                axios
+                    .get(`http://localhost:8080/api/utilisateurs/${userId}`)
+                    .then((response) => setUser(response.data))
+                    .catch((error) =>
+                        console.error("Erreur lors du chargement du profil :", error)
+                    );
             }
-        } catch (error) {
-            console.error("Erreur lors de la récupération des vols :", error);
         }
-    };
-    // Définition de l'icône personnalisée pour l'avion ✈️
-    const planeIcon = new L.Icon({
-        iconUrl: "https://cdn-icons-png.flaticon.com/512/3410/3410897.png", // Remplace par une URL valide
-        iconSize: [30, 30], // Taille de l'icône
-        iconAnchor: [15, 15], // Point d'ancrage au centre
-        popupAnchor: [0, -15], // Position du popup
-    });
+    }, [navigate]);
 
     return (
         <Container>
-            {/* ☰ Icone pour ouvrir le menu */}
-            <BurgerIcon onClick={() => setSidebarOpen(!sidebarOpen)}>☰</BurgerIcon>
-
-            {/* Sidebar Menu */}
+            {/* SIDEBAR */}
             <Sidebar open={sidebarOpen}>
                 <SidebarContent>
                     <CloseButton onClick={() => setSidebarOpen(false)}>✖</CloseButton>
@@ -78,112 +40,67 @@ const Dashboard = () => {
                     <ul>
                         <li onClick={() => navigate("/")}>🏠 Accueil</li>
                         <li onClick={() => navigate("/profile")}>👤 Profil</li>
-                        <li onClick={() => navigate("/statistics")}> 📊 Dashboard</li>
                         <li onClick={() => navigate("/upload")}> 📊 Data</li>
-                        <li onClick={() => {
-                            localStorage.removeItem("token");
-                            navigate("/login");
-                        }}>🚪 Déconnexion
+                        <li onClick={() => navigate("/metabase")}> Poser une question</li>
+                        <li onClick={() => navigate("/metabase-viewer")}> Visualiser les dashboards</li>
+                        <li
+                            onClick={() => {
+                                localStorage.removeItem("token");
+                                navigate("/login");
+                            }}
+                        >
+                            🚪 Déconnexion
                         </li>
                     </ul>
                 </SidebarContent>
             </Sidebar>
 
-            <Title>✈️ Dashboard - Aviation</Title>
+            {/* TOPBAR */}
+            <Topbar>
+                <LeftSection>
+                    <BurgerIcon onClick={() => setSidebarOpen(!sidebarOpen)}>☰</BurgerIcon>
+                </LeftSection>
 
-            <TableContainer>
-                <Table>
-                    <thead>
-                    <tr>
-                        <Th>Avion</Th>
-                        <Th>Pays</Th>
-                        <Th>Altitude (m)</Th>
-                        <Th>Vitesse (m/s)</Th>
-                        <Th>Direction (°)</Th>
-                        <Th>Taux montée/descente (m/s)</Th>
-                        <Th>Altitude barométrique (m)</Th>
-                        <Th>Code transpondeur</Th>
-                        <Th>Au sol ?</Th>
-                        <Th>Position (Lat, Lng)</Th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {flights.map((flight) => (
-                        <Tr key={flight.id}>
-                            <Td>{flight.callsign}</Td>
-                            <Td>{flight.country}</Td>
-                            <Td>{flight.altitude.toFixed(2)}</Td>
-                            <Td>{flight.velocity.toFixed(2)}</Td>
-                            <Td>{flight.heading}</Td>
-                            <Td>{flight.verticalRate}</Td>
-                            <Td>{flight.barometricAltitude}</Td>
-                            <Td>{flight.transponder}</Td>
-                            <Td>{flight.onGround}</Td>
-                            <Td>{flight.latitude.toFixed(2)}, {flight.longitude.toFixed(2)}</Td>
-                        </Tr>
-                    ))}
-                    </tbody>
-                </Table>
-            </TableContainer>
+                <CenterSection>
+                    <SearchInput
+                        type="text"
+                        placeholder="Rechercher..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </CenterSection>
 
-            <MapContainer
-                center={[48.8566, 2.3522]}
-                zoom={4}
-                style={{ height: "1900px", width: "68%", marginTop: "20px", borderRadius: "10px" }}
-            >
-                <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
+                <RightSection>
+                    <Notification>🔔</Notification>
+                    <ProfileIcon>👤</ProfileIcon>
+                </RightSection>
+            </Topbar>
 
-                {flights
-                    .filter(flight => flight.latitude !== 0 && flight.longitude !== 0)
-                    .map((flight) => (
-                        <Marker key={flight.id} position={[flight.latitude, flight.longitude]}  icon={planeIcon}>
-                            <Popup>
-                                <strong>✈️ {flight.callsign}</strong> <br />
-                                Pays: {flight.country} <br />
-                                Altitude: {flight.altitude.toFixed(2)} m <br />
-                                Vitesse: {flight.velocity.toFixed(2)} m/s <br />
-                                Direction: {flight.heading}° <br />
-                                Taux montée/descente: {flight.verticalRate} m/s <br />
-                                Altitude barométrique: {flight.barometricAltitude} m <br />
-                                Code transpondeur: {flight.transponder} <br />
-                                Au sol ? {flight.onGround}
-                            </Popup>
-                        </Marker>
-                    ))}
-            </MapContainer>
+            {/* CONTENU */}
+            <Title> Salutations,{user ? user.nomUtilisateur : "Chargement..."} !</Title>
+            <Message>
+                Bienvenue sur votre tableau de bord
+            </Message>
         </Container>
     );
 };
 
 export default Dashboard;
 
-// 🌟 STYLES 🌟
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    background: linear-gradient(135deg, #330125, #000000);
     color: white;
     height: 100vh;
     padding: 20px;
 `;
 
-const BurgerIcon = styled.div`
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10;
-`;
-
 const Sidebar = styled.div`
     position: fixed;
     top: 0;
-    left: ${props => (props.open ? "0" : "-250px")}; 
+    left: ${(props) => (props.open ? "0" : "-250px")};
     width: 250px;
     height: 100%;
     background: rgba(0, 0, 0, 0.9);
@@ -214,39 +131,71 @@ const CloseButton = styled.div`
     font-size: 20px;
 `;
 
+const Topbar = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 60px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    z-index: 15;
+`;
+
+const LeftSection = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const BurgerIcon = styled.div`
+    font-size: 26px;
+    cursor: pointer;
+    color: white;
+`;
+
+const CenterSection = styled.div`
+    flex: 1;
+    display: flex;
+    justify-content: center;
+`;
+
+const SearchInput = styled.input`
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    width: 300px;
+`;
+
+const RightSection = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 20px;
+`;
+
+const Notification = styled.div`
+    font-size: 22px;
+    cursor: pointer;
+    
+`;
+
+const ProfileIcon = styled.div`
+    font-size: 22px;
+    cursor: pointer;
+`;
+
 const Title = styled.h1`
     font-size: 2rem;
-    margin-bottom: 20px;
+    margin-top: 80px;
+    margin-bottom: 10px;
 `;
 
-const TableContainer = styled.div`
-    width: 95%;
-    max-width: 1200px;
-    overflow-x: auto;
+const Message = styled.p`
+    font-size: 1.2rem;
+    color: #ccc;
 `;
-
-const Table = styled.table`
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    color: black;
-`;
-
-const Th = styled.th`
-    background: #007bff;
-    color: white;
-    padding: 12px;
-`;
-
-const Td = styled.td`
-    padding: 12px;
-    text-align: center;
-`;
-
-const Tr = styled.tr`
-    &:nth-child(even) {
-        background: #f8f9fa;
-    }
-`;
-
-

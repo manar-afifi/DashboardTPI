@@ -59,31 +59,47 @@ const UploadData = () => {
 
 export default UploadData;
 
-// 🎨 **Styles**
 const Container = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    justify-content: center;
+    background: linear-gradient(135deg, #000000, #3e0231);
     color: white;
-    height: 100vh;
-    padding: 20px;
+    min-height: 100vh;
+    padding: 40px 20px;
 `;
 
 const Title = styled.h1`
-    font-size: 2rem;
-    margin-bottom: 20px;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 `;
 
 const Input = styled.input`
-    margin-bottom: 20px;
-    padding: 10px;
-    background: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    background-color: white;
+    color: #333;
+    cursor: pointer;
+    transition: 0.3s;
+
+    &:hover {
+        background-color: #f2f2f2;
+    }
 `;
 
 const TableContainer = styled.div`
-    width: 80%;
-    overflow-x: auto;
+    width: 90%;
+    max-width: 1000px;
+    margin-top: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 `;
 
 const Table = styled.table`
@@ -91,30 +107,36 @@ const Table = styled.table`
     border-collapse: collapse;
     background: white;
     color: black;
+    font-size: 0.95rem;
 `;
 
 const Th = styled.th`
-    background: #007bff;
+    background: #08056c;
     color: white;
-    padding: 12px;
-`;
-
-const Td = styled.td`
     padding: 12px;
     text-align: center;
 `;
 
+const Td = styled.td`
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+`;
+
 const Button = styled.button`
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 1.2rem;
+    margin-top: 30px;
+    padding: 12px 24px;
+    font-size: 1.1rem;
     cursor: pointer;
     border: none;
-    background: #ff6b6b;
+    background: #5e055d;
     color: white;
-    border-radius: 5px;
-    transition: 0.3s;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+
     &:hover {
-        background: #d43f3f;
+        background: #50073f;
+        transform: scale(1.05);
     }
 `;
+
