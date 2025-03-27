@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { ArrowRight, ShieldCheck, Zap, Heart } from "lucide-react";
+import { ArrowRight,LayoutDashboard, Database, BarChartBig, FileUp } from "lucide-react";
 
 const HeroPage = () => {
     const scrollToFeatures = () => {
@@ -35,21 +35,27 @@ const HeroPage = () => {
                 </FeatureSubtitle>
                 <FeatureCards>
                     <FeatureCard>
-                        <IconWrapper><ShieldCheck size={28} /></IconWrapper>
-                        <CardTitle>Secure by default</CardTitle>
-                        <CardText>Your data is protected with enterprise-grade security.</CardText>
+                        <IconWrapper><LayoutDashboard size={28} /></IconWrapper>
+                        <CardTitle>Création de dashboards</CardTitle>
+                        <CardText>Générez facilement des tableaux de bord interactifs à partir de vos fichiers et bases de données.</CardText>
                     </FeatureCard>
                     <FeatureCard>
-                        <IconWrapper><Zap size={28} /></IconWrapper>
-                        <CardTitle>Lightning fast</CardTitle>
-                        <CardText>Optimized performance for the best user experience.</CardText>
+                        <IconWrapper><Database size={28} /></IconWrapper>
+                        <CardTitle>Puissance de Metabase</CardTitle>
+                        <CardText>Exploitez tout le potentiel de Metabase directement depuis votre interface personnalisée.</CardText>
                     </FeatureCard>
                     <FeatureCard>
-                        <IconWrapper><Heart size={28} /></IconWrapper>
-                        <CardTitle>Built with love</CardTitle>
-                        <CardText>Crafted with attention to every detail.</CardText>
+                        <IconWrapper><BarChartBig size={28} /></IconWrapper>
+                        <CardTitle>Analyse intelligente</CardTitle>
+                        <CardText>Explorez vos données avec des visualisations claires, KPIs dynamiques et filtres contextuels.</CardText>
+                    </FeatureCard>
+                    <FeatureCard>
+                        <IconWrapper><FileUp size={28} /></IconWrapper>
+                        <CardTitle>Importation intuitive</CardTitle>
+                        <CardText>Importez vos fichiers Excel, créez des tables PostgreSQL automatiquement, et commencez l’analyse.</CardText>
                     </FeatureCard>
                 </FeatureCards>
+
             </FeaturesSection>
         </Wrapper>
     );
@@ -157,9 +163,15 @@ const FeatureSubtitle = styled.p`
 
 const FeatureCards = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
   gap: 32px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
 `;
 
 const FeatureCard = styled.div`

@@ -58,13 +58,14 @@ public class UtilisateurController {
     public ResponseEntity<UtilisateurDTO> updateUtilisateur(
             @PathVariable Long id,
             @RequestPart(required = false) String newName,
+            @RequestPart(required = false) String newEmail,
             @RequestPart(required = false) MultipartFile file) {
 
         System.out.println("🔹 Requête PUT reçue pour ID: " + id);
         System.out.println("🔹 Nouveau nom: " + newName);
         System.out.println("🔹 Fichier reçu: " + (file != null ? file.getOriginalFilename() : "Aucun fichier"));
 
-        UtilisateurDTO updatedUser = utilisateurService.updateUtilisateurInfo(id, newName, file);
+        UtilisateurDTO updatedUser = utilisateurService.updateUtilisateurInfo(id, newName, newEmail, file);
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -73,6 +74,18 @@ public class UtilisateurController {
         utilisateurService.supprimerUtilisateur(id);
         return ResponseEntity.noContent().build();
     }
+    // ➕ AJOUTER CE ENDPOINT POUR LES STATS
+    @GetMapping("/count")
+    public ResponseEntity<Long> countUtilisateurs() {
+        return ResponseEntity.ok(utilisateurService.countUtilisateurs());
+    }
+
+    // ➕ AJOUTER ENDPOINT POUR DERNIER ACCÈS / IMPORT (EXEMPLE)
+    @GetMapping("/last-access")
+    public ResponseEntity<String> getLastAccess() {
+        return ResponseEntity.ok(utilisateurService.getLastAccess().toString());
+    }
+
 
 
 

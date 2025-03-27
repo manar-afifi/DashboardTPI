@@ -1,209 +1,216 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
-import { Tooltip, PieChart, Pie, Cell } from "recharts";
+import React, { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
+import styled from 'styled-components';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 
-const GenerateKPI = () => {
+
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7f50", "#00c49f"];
+
+const FichierKPI = () => {
+    const [files, setFiles] = useState([]);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [kpis, setKpis] = useState([]);
+    const [selectedKpi, setSelectedKpi] = useState(null);
     const navigate = useNavigate();
-    const [data, setData] = useState([]);
-    const [kpiOptions, setKpiOptions] = useState([]);
-    const [selectedKPI, setSelectedKPI] = useState(null);
-    const [columnNames, setColumnNames] = useState([]);
+
 
     useEffect(() => {
-        // Charger les données depuis le localStorage (provenant du fichier Excel uploadé)
-        const rawData = JSON.parse(localStorage.getItem("uploadedData")) || [];
-        setData(rawData);
-        if (rawData.length > 0) {
-            generateKPIOptions(rawData);
-            setColumnNames(Object.keys(rawData[0])); // Stocker les noms des colonnes
-        }
+        const uploaded = JSON.parse(localStorage.getItem('uploadedFiles')) || [];
+        setFiles(uploaded);
+
+        const selected = JSON.parse(localStorage.getItem('selectedFile'));
+        if (selected) handleFileSelect(selected);
     }, []);
 
-    const generateKPIOptions = (rawData) => {
-        if (rawData.length === 0) return;
+    const handleFileSelect = (file) => {
+        setSelectedFile(file);
+        localStorage.setItem('selectedFile', JSON.stringify(file));
 
-        const firstRow = rawData[0]; // Prend la première ligne pour détecter les colonnes
-        let options = [];
 
-        Object.keys(firstRow).forEach((col) => {
-            if (typeof firstRow[col] === "number") {
-                options.push(`Moyenne de ${col}`);
-                options.push(`Somme de ${col}`);
-                options.push(`Répartition de ${col}`);
+        const base64Data = file.fileContent.split(',')[1];
+        const binaryString = atob(base64Data);
+        const bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        const workbook = XLSX.read(bytes, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+
+        const firstRow = sheet[0];
+        const kpiList = [];
+
+        Object.keys(firstRow).forEach((key) => {
+            const values = sheet.map(row => row[key]).filter(Boolean);
+            const numericValues = values.map(v => parseFloat(v)).filter(v => !isNaN(v));
+
+            if (numericValues.length === values.length) {
+                const sum = numericValues.reduce((a, b) => a + b, 0);
+                const avg = sum / numericValues.length;
+                const data = Object.entries(
+                    numericValues.reduce((acc, val) => {
+                        acc[val] = (acc[val] || 0) + 1;
+                        return acc;
+                    }, {})
+                ).map(([name, value]) => ({ name, value }));
+
+                kpiList.push({ type: 'numeric', key, label: `Moyenne de ${key}`, value: avg.toFixed(2), data });
+                kpiList.push({ type: 'numeric', key, label: `Somme de ${key}`, value: sum.toFixed(2), data });
             } else {
-                options.push(`Répartition des catégories de ${col}`);
+                const countMap = {};
+                values.forEach(val => countMap[val] = (countMap[val] || 0) + 1);
+                const mostFrequent = Object.entries(countMap).sort((a, b) => b[1] - a[1])[0];
+                const data = Object.entries(countMap).map(([name, value]) => ({ name, value }));
+
+                kpiList.push({ type: 'categorical', key, label: `Catégorie fréquente de ${key}`, value: mostFrequent?.[0], data });
             }
         });
-        setKpiOptions(options);
+
+        setKpis(kpiList);
+        setSelectedKpi(null);
     };
 
-    const handleGenerateKPI = (kpi) => {
-        setSelectedKPI(kpi);
-    };
-
-    const renderChart = () => {
-        if (!selectedKPI || data.length === 0) return null;
-        let chartData = [];
-
-        if (selectedKPI.includes("Moyenne")) {
-            const column = selectedKPI.replace("Moyenne de ", "");
-            const avg = (data.reduce((sum, row) => sum + row[column], 0) / data.length).toFixed(2);
-            return <KPIText>Moyenne de {column} : <strong>{avg}</strong></KPIText>;
-        }
-
-        if (selectedKPI.includes("Somme")) {
-            const column = selectedKPI.replace("Somme de ", "");
-            const sum = data.reduce((sum, row) => sum + row[column], 0);
-            return <KPIText>Somme de {column} : <strong>{sum}</strong></KPIText>;
-        }
-
-        if (selectedKPI.includes("Répartition des catégories")) {
-            const column = selectedKPI.replace("Répartition des catégories de ", "");
-            const counts = {};
-            data.forEach((row) => {
-                counts[row[column]] = (counts[row[column]] || 0) + 1;
-            });
-            chartData = Object.entries(counts).map(([name, value]) => ({ name, value }));
-            return (
-                <PieChart width={400} height={300}>
-                    <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100}>
-                        {chartData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={["#0088FE", "#00C49F", "#FFBB28", "#FF8042"][index % 4]} />
-                        ))}
-                    </Pie>
-                    <Tooltip />
-                </PieChart>
-            );
-        }
-
-        return null;
-    };
 
     return (
         <Container>
-            <Title>📊 Génération Automatique de KPIs</Title>
-
-            {/* Affichage des colonnes détectées */}
-            {columnNames.length > 0 && (
-                <ColumnsContainer>
-                    <h3>📂 Colonnes détectées :</h3>
-                    <ColumnsList>
-                        {columnNames.map((col, index) => (
-                            <ColumnItem key={index}>{col}</ColumnItem>
-                        ))}
-                    </ColumnsList>
-                </ColumnsContainer>
-            )}
-
-            <KPIList>
-                {kpiOptions.map((kpi, index) => (
-                    <KPIButton key={index} onClick={() => handleGenerateKPI(kpi)}>
-                        {kpi}
-                    </KPIButton>
+            <Sidebar>
+                <h3>Fichiers importés</h3>
+                {files.map((f, i) => (
+                    <FileButton key={i} onClick={() => handleFileSelect(f)}>
+                        {f.name}
+                    </FileButton>
                 ))}
-            </KPIList>
+            </Sidebar>
 
-            <ChartContainer>{renderChart()}</ChartContainer>
+            <Main>
+                <TopBar>
+                    <BackButton onClick={() => navigate('/dashboard')}>← Retour au Dashboard</BackButton>
+                </TopBar>
+                <h2>KPIs du fichier : {selectedFile?.name}</h2>
 
-            <BackButton onClick={() => navigate("/upload")}>⬅ Retour</BackButton>
+                <KpiContainer>
+                    {kpis.map((k, i) => (
+                        <KpiCard key={i} onClick={() => setSelectedKpi(k)}>
+                            <h4>{k.label}</h4>
+                            <p>{k.value}</p>
+                        </KpiCard>
+                    ))}
+                </KpiContainer>
+
+                {selectedKpi && (
+                    <ChartSection>
+                        <h3>Graphique : {selectedKpi.label}</h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            {selectedKpi.type === 'categorical' ? (
+                                <PieChart>
+                                    <Pie data={selectedKpi.data} dataKey="value" nameKey="name" outerRadius={100} label>
+                                        {selectedKpi.data.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip />
+                                </PieChart>
+                            ) : (
+                                <BarChart data={selectedKpi.data}>
+                                    <XAxis dataKey="name" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Bar dataKey="value" fill="#8884d8" />
+                                </BarChart>
+                            )}
+                        </ResponsiveContainer>
+                    </ChartSection>
+                )}
+            </Main>
         </Container>
     );
 };
 
-export default GenerateKPI;
+export default FichierKPI;
 
-// 🌟 **STYLES** 🌟
 const Container = styled.div`
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
-    color: white;
-    height: 100vh;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2a0845, #300c5e, #ff6ec4);
+    color: #fff;
+`;
+
+const Sidebar = styled.div`
+    width: 250px;
+    background: #1f0938;
     padding: 20px;
+    border-right: 1px solid #444;
 `;
 
-const Title = styled.h1`
-    font-size: 2rem;
-    margin-bottom: 20px;
-`;
-
-const ColumnsContainer = styled.div`
-    background: #fff;
-    color: black;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    text-align: center;
-`;
-
-const ColumnsList = styled.ul`
-    list-style: none;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-`;
-
-const ColumnItem = styled.li`
-    background: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-`;
-
-const KPIList = styled.div`
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-`;
-
-const KPIButton = styled.button`
-    background: #007bff;
-    color: white;
-    padding: 10px 15px;
+const FileButton = styled.button`
+    display: block;
+    background: transparent;
     border: none;
-    border-radius: 5px;
+    color: #ddd;
+    margin-bottom: 10px;
+    text-align: left;
     cursor: pointer;
-    transition: 0.3s;
     &:hover {
-        background: #0056b3;
+        color: #fff;
+        font-weight: bold;
     }
 `;
 
-const ChartContainer = styled.div`
-    background: white;
-    color: black;
-    padding: 20px;
-    border-radius: 10px;
-    width: 500px;
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+const Main = styled.div`
+    flex: 1;
+    padding: 30px;
 `;
 
-const KPIText = styled.h3`
-    font-size: 1.5rem;
-    color: black;
-    text-align: center;
+const KpiContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+`;
+
+const KpiCard = styled.div`
+    background: white;
+    color: #212529;
+    padding: 20px;
+    border-radius: 12px;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.2s;
+    &:hover {
+        transform: scale(1.05);
+        background: #f8f9fa;
+    }
+`;
+
+const ChartSection = styled.div`
+    margin-top: 40px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    color: #212529;
+`;
+const TopBar = styled.div`
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
 `;
 
 const BackButton = styled.button`
-    margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    cursor: pointer;
+    background: #ffffff;
+    color: #2a0845;
     border: none;
-    background: #ff6b6b;
-    color: white;
-    border-radius: 5px;
-    transition: 0.3s;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: background 0.3s ease;
+
     &:hover {
-        background: #d43f3f;
+        background: #ececec;
     }
 `;
+

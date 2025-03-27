@@ -106,6 +106,20 @@ public class MetabaseController {
         return ResponseEntity.ok(metabaseService.getCardDataWithParams(id, dateFrom, dateTo, granularity));
     }
 
+    @GetMapping("/card-table-name/{id}")
+    public ResponseEntity<String> getTableNameFromCard(@PathVariable int id) {
+        try {
+            String tableName = metabaseService.getTableNameForCard(id);
+            return ResponseEntity.ok(tableName);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("❌ Erreur : " + e.getMessage());
+        }
+    }
+
+
+
+
+
 
 
 

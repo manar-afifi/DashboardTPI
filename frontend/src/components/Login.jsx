@@ -27,18 +27,18 @@ const Login = () => {
             }
 
             const data = await response.json(); // Récupère le token renvoyé par le backend
-            localStorage.setItem("token", data.token); // Stocker le token JWT
+            localStorage.setItem("token", data.token);
             localStorage.setItem("user", JSON.stringify({
                 idUtilisateur: data.idUtilisateur,
                 nomUtilisateur: data.nomUtilisateur,
                 email: data.email
             }));
             console.log("Utilisateur connecté :", localStorage.getItem("user"));
-            navigate("/dashboard"); // Redirection après connexion
+            navigate("/dashboard");
 
         } catch (error) {
             console.error("Erreur lors de la connexion :", error);
-            alert(error.message); // Afficher l'erreur si le login échoue
+            alert(error.message);
         }
     };
 
@@ -102,7 +102,7 @@ const Login = () => {
 
 export default Login;
 
-// 🌟 STYLES 🌟
+
 const Container = styled.div`
     display: flex;
     height: 100vh;

@@ -1,4 +1,4 @@
-package fr.estia.dashboardtpi.services;
+/*package fr.estia.dashboardtpi.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -18,4 +18,4 @@ public class OpenSkyService {
                 BASE_URL, HttpMethod.GET, new HttpEntity<>(new HttpHeaders()), String.class);
         return response.getBody();
     }
-}
+}*/

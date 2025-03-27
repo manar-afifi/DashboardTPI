@@ -3,6 +3,7 @@ package fr.estia.dashboardtpi.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
@@ -45,4 +46,17 @@ public class Utilisateur {
     public void addRole(String role) {
         this.roles.add(role);
     }
+
+
+    @Column(name = "derniere_connexion")
+    private LocalDateTime derniereConnexion;
+
+    public LocalDateTime getDerniereConnexion() {
+        return derniereConnexion;
+    }
+
+    public void setDerniereConnexion(LocalDateTime derniereConnexion) {
+        this.derniereConnexion = derniereConnexion;
+    }
+
 }

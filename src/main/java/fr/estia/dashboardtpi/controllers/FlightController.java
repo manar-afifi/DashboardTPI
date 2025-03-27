@@ -1,4 +1,4 @@
-package fr.estia.dashboardtpi.controllers;
+/*package fr.estia.dashboardtpi.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +22,6 @@ public class FlightController {
             return ResponseEntity.status(500).body("Erreur lors de la récupération des vols.");
         }
     }
-}
+}*/
 
 

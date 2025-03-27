@@ -4,15 +4,15 @@ import fr.estia.dashboardtpi.dtos.UtilisateurDTO;
 import fr.estia.dashboardtpi.entities.Utilisateur;
 import fr.estia.dashboardtpi.mappers.UtilisateurMapper;
 import fr.estia.dashboardtpi.repositories.UtilisateurRepository;
-import fr.estia.dashboardtpi.services.IUtilisateurService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,13 +37,25 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
         utilisateurRepository.save(utilisateur);
         return utilisateurDTO;
     }
-
+/*
     @Override
     public UtilisateurDTO obtenirUtilisateurParId(Long idUtilisateur) {
         Utilisateur utilisateur = utilisateurRepository.findById(idUtilisateur)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         return utilisateurMapper.toDto(utilisateur);
-    }
+    }*/
+@Override
+public UtilisateurDTO obtenirUtilisateurParId(Long idUtilisateur) {
+    Utilisateur utilisateur = utilisateurRepository.findById(idUtilisateur)
+            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+    //  Mettre à jour la dernière connexion
+    utilisateur.setDerniereConnexion(LocalDateTime.now());
+    utilisateurRepository.save(utilisateur);
+
+    return utilisateurMapper.toDto(utilisateur);
+}
+
 
     @Override
     public List<UtilisateurDTO> obtenirTousLesUtilisateurs() {
@@ -84,14 +96,20 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
         utilisateurRepository.deleteById(idUtilisateur);
     }
     @Override
-    public UtilisateurDTO updateUtilisateurInfo(Long id, String newName, MultipartFile file) {
-        // Vérification si l utilisateur existe
+    public UtilisateurDTO updateUtilisateurInfo(Long id, String newName, String newEmail, MultipartFile file) {
         Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur introuvable avec l'ID : " + id));
 
-        // Mis à jour le nom de l'utilisateur
         if (newName != null && !newName.trim().isEmpty()) {
             utilisateur.setNomUtilisateur(newName);
+        }
+
+        if (newEmail != null && !newEmail.trim().isEmpty()) {
+            Optional<Utilisateur> utilisateurAvecEmail = utilisateurRepository.findByEmail(newEmail);
+            if (utilisateurAvecEmail.isPresent() && !utilisateurAvecEmail.get().getIdUtilisateur().equals(id)) {
+                throw new RuntimeException("Cet email est déjà utilisé par un autre utilisateur.");
+            }
+            utilisateur.setEmail(newEmail);
         }
 
         if (file != null && !file.isEmpty()) {
@@ -106,5 +124,16 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
 
         Utilisateur updatedUtilisateur = utilisateurRepository.save(utilisateur);
         return utilisateurMapper.toDto(updatedUtilisateur);
+    }
+
+    @Override
+    public long countUtilisateurs() {
+        return utilisateurRepository.count();
+    }
+
+    @Override
+    public String getLastAccess() {
+        Utilisateur last = utilisateurRepository.findTopByOrderByDerniereConnexionDesc();
+        return last != null && last.getDerniereConnexion() != null ? last.getDerniereConnexion().toString() : "Aucune donnée";
     }
 }

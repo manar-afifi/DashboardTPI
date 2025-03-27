@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
-import backgroundImage from "../assets/img_6.png"; // Assurez-vous d'avoir l'image ici
+import backgroundImage from "../assets/img_6.png";
 
 const Register = () => {
     const [nom, setNom] = useState("");
@@ -13,9 +13,9 @@ const Register = () => {
         e.preventDefault();
 
         const userData = {
-            nomUtilisateur: nom,  // "nom" doit être "nomUtilisateur"
+            nomUtilisateur: nom,
             email: email,
-            motDepasse: password  // "password" doit être "motDepasse"
+            motDepasse: password
         };
 
 
@@ -34,7 +34,7 @@ const Register = () => {
 
             const data = await response.json();
             alert(`Compte créé pour ${data.nom} !`);
-            navigate("/login"); // Redirection vers la page de connexion
+            navigate("/login");
         } catch (error) {
             console.error("Erreur lors de l'inscription :", error);
             alert("Erreur lors de la création du compte !");
@@ -81,7 +81,7 @@ const Register = () => {
 
 export default Register;
 
-// 🌟 STYLES 🌟
+
 const fadeIn = keyframes`
   from {
     opacity: 0;

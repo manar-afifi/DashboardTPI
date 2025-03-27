@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import { FaUserCircle } from "react-icons/fa"; // Icône utilisateur par défaut
+import { FaUserCircle } from "react-icons/fa";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
     const navigate = useNavigate();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Récupérer l'utilisateur depuis localStorage
+
     const storedUser = localStorage.getItem("user");
     const userId = storedUser ? JSON.parse(storedUser).idUtilisateur : null;
 
@@ -36,6 +37,37 @@ const Profile = () => {
     return (
         <PageWrapper>
         <ProfileContainer>
+            <Sidebar open={sidebarOpen}>
+                <SidebarContent>
+                    <CloseButton onClick={() => setSidebarOpen(false)}>✖</CloseButton>
+                    <h2>Menu</h2>
+                    <ul>
+                        <li onClick={() => navigate("/")}>🏠 Accueil</li>
+                        <li onClick={() => navigate("/dashboard")}> Vue d’ensemble</li>
+                        <li onClick={() => navigate("/upload")}> 📊 Générer les KPI </li>
+                        <li onClick={() => navigate("/metabase")}> ➕ Nouvelle question</li>
+                        <li onClick={() => navigate("/metabase-viewer")}> Visualiser les dashboards </li>
+                        <li onClick={() => navigate("/profile")}>👤 Profil</li>
+                        <li
+                            onClick={() => {
+                                localStorage.removeItem("token");
+                                navigate("/login");
+                            }}
+                        >
+                            🚪 Déconnexion
+                        </li>
+                    </ul>
+                </SidebarContent>
+            </Sidebar>
+            <Topbar>
+                <LeftSection>
+                    <BurgerIcon onClick={() => setSidebarOpen(!sidebarOpen)}>☰</BurgerIcon>
+                </LeftSection>
+                <RightSection>
+                    <Notification>🔔</Notification>
+                    <ProfileIcon>👤</ProfileIcon>
+                </RightSection>
+            </Topbar>
             <ProfileCard>
                 <ProfileLeft>
                     {user.photoUtilisateur ? (
@@ -47,7 +79,7 @@ const Profile = () => {
                 <ProfileRight>
                     <h2>Profil de {user.nomUtilisateur}</h2>
 
-                    {/* ✅ Affichage des informations sous forme de champs */}
+
                     <Form>
                         <Label>Nom :</Label>
                         <Input type="text" value={user.nomUtilisateur} disabled />
@@ -62,7 +94,7 @@ const Profile = () => {
                         <Input type="text" value="Administrateur" disabled />
                     </Form>
 
-                    {/* ✅ Espacement amélioré entre les boutons */}
+
                     <ButtonContainer>
                         <Button onClick={() => navigate("/edit-profile")}>Modifier mon profil</Button>
                         <Button onClick={() => navigate("/dashboard")}>Retour au Dashboard</Button>
@@ -76,17 +108,18 @@ const Profile = () => {
 
 export default Profile;
 
-// 🌟 STYLED COMPONENTS 🌟
+
 
 const ProfileContainer = styled.div`
     max-width: 800px;
-    margin: 50px auto;
+    margin: 100px auto 50px; 
     padding: 30px;
     border-radius: 15px;
     background: #ffffff;
     color: #333;
     box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
 `;
+
 
 const ProfileCard = styled.div`
     display: flex;
@@ -152,7 +185,7 @@ const Input = styled.input`
 
 const ButtonContainer = styled.div`
     display: flex;
-    gap: 15px;  /* 🔥 ✅ Augmente l’espace entre les boutons */
+    gap: 15px;  
     margin-top: 20px;
     justify-content: center;
 `;
@@ -189,5 +222,81 @@ const PageWrapper = styled.div`
     color: white;
     height: 100vh;
     
+`;
+
+const Sidebar = styled.div`
+    position: fixed;
+    top: 0;
+    left: ${(props) => (props.open ? "0" : "-250px")};
+    width: 250px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    transition: 0.3s ease;
+    z-index: 20;
+    color: white;
+`;
+
+const SidebarContent = styled.div`
+    padding: 20px;
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    li {
+        padding: 15px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    li:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+`;
+
+const CloseButton = styled.div`
+    text-align: right;
+    cursor: pointer;
+    font-size: 20px;
+`;
+
+const Topbar = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 60px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    z-index: 15;
+`;
+
+const LeftSection = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const BurgerIcon = styled.div`
+    font-size: 26px;
+    cursor: pointer;
+    color: white;
+`;
+
+const RightSection = styled.div`
+    display: flex;
+    align-items: center;
+    gap: 20px;
+`;
+
+const Notification = styled.div`
+    font-size: 22px;
+    cursor: pointer;
+`;
+
+const ProfileIcon = styled.div`
+    font-size: 22px;
+    cursor: pointer;
 `;
 

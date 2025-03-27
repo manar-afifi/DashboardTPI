@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    private String SECRET_KEY = "secret"; // 🔴 Change ça en une vraie clé sécurisée
+    private String SECRET_KEY = "secret"; //
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()

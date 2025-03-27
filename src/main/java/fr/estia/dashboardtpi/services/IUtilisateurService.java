@@ -12,5 +12,9 @@ public interface IUtilisateurService {
     UtilisateurDTO modifierUtilisateur(Long idUtilisateur, UtilisateurDTO utilisateurDTO);
     void supprimerUtilisateur(Long idUtilisateur);
 
-    UtilisateurDTO updateUtilisateurInfo(Long id, String newName, MultipartFile file);
+    UtilisateurDTO updateUtilisateurInfo(Long id, String newName, String newEmail, MultipartFile file);
+
+    long countUtilisateurs();
+
+    String getLastAccess();
 }

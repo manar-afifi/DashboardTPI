@@ -1,4 +1,4 @@
-package fr.estia.dashboardtpi.services;
+/*package fr.estia.dashboardtpi.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,4 +19,4 @@ public class AviationStackService {
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         return response.getBody();
     }
-}
+}*/

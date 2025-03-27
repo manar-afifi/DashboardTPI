@@ -17,6 +17,15 @@ public class MetabaseService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    private HttpHeaders createHeaders() {
+        String token = getMetabaseSessionToken();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Metabase-Session", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        return headers;
+    }
+
     // Obtenir le token
     public String getMetabaseSessionToken() {
         String url = METABASE_URL + "/api/session";
@@ -38,7 +47,6 @@ public class MetabaseService {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
 
-        // Récupérer le slug (utilisé dans l’URL publique)
         String slug = (String) response.getBody().get("slug");
         return METABASE_URL + "/public/dashboard/" + dashboardId;
 
@@ -97,7 +105,7 @@ public class MetabaseService {
     }
 
     public String getCardEmbedUrl(int cardId) {
-        String secretKey = "65914603f3e7c4b70b7d77934c72ccfe688fd6f7cd6168d5d87fba07cfbe547b"; // La même que dans Metabase > Settings > Embedding
+        String secretKey = "65914603f3e7c4b70b7d77934c72ccfe688fd6f7cd6168d5d87fba07cfbe547b";
         Map<String, Object> payload = new HashMap<>();
         payload.put("resource", Map.of("question", cardId));
         payload.put("params", new HashMap<>());
@@ -120,7 +128,7 @@ public class MetabaseService {
 
         // Corps de la requête pour activer l’encastrement
         Map<String, Object> update = new HashMap<>();
-        update.put("enable_embedding", true); // ✅ clé importante
+        update.put("enable_embedding", true);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(update, headers);
         restTemplate.exchange(url, HttpMethod.PUT, request, Map.class);
@@ -134,7 +142,7 @@ public class MetabaseService {
         headers.set("X-Metabase-Session", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // On appelle l'API sans payload, juste avec POST
+
         HttpEntity<Void> entity = new HttpEntity<>(headers);
         restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
     }
@@ -155,7 +163,7 @@ public class MetabaseService {
         }
     }
 
-    // Gérer les données
+
     public Map<String, Object> getCardData(int cardId) {
         String token = getMetabaseSessionToken();
         String url = METABASE_URL + "/api/card/" + cardId + "/query";
@@ -178,15 +186,77 @@ public class MetabaseService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("dateFrom", dateFrom); // ex: "2024-01-01"
-        params.put("dateTo", dateTo);     // ex: "2024-12-31"
-        params.put("granularity", granularity); // ex: "month"
+        params.put("dateFrom", dateFrom);
+        params.put("dateTo", dateTo);
+        params.put("granularity", granularity);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(params, headers);
         ResponseEntity<List> response = restTemplate.postForEntity(url, entity, List.class);
 
         return Map.of("data", response.getBody());
     }
+    public String getTableNameForCard(int cardId) {
+        String token = getMetabaseSessionToken();
+        String url = METABASE_URL + "/api/card/" + cardId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Metabase-Session", token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+        Map<String, Object> body = response.getBody();
+
+        if (body == null || !body.containsKey("dataset_query")) {
+            throw new RuntimeException("Aucune 'dataset_query' dans la réponse de la carte.");
+        }
+
+        Map<String, Object> datasetQuery = (Map<String, Object>) body.get("dataset_query");
+
+        // Cas 1 : Requête basée sur une table (type = query builder)
+        if (datasetQuery.containsKey("source-table")) {
+            Object source = datasetQuery.get("source-table");
+
+            if (source instanceof Integer) {
+                return getTableNameById((Integer) source);
+            }
+        }
+
+        // Cas 2 : Requête native SQL -> on essaie d’analyser la requête si possible
+        if ("native".equals(datasetQuery.get("type"))) {
+            Map<String, Object> nativeMap = (Map<String, Object>) datasetQuery.get("native");
+            String sql = (String) nativeMap.get("query");
+
+            // essaie de deviner la table utilisée dans un SELECT
+            if (sql != null && sql.toLowerCase().contains("from")) {
+                String[] parts = sql.toLowerCase().split("from");
+                if (parts.length > 1) {
+                    String afterFrom = parts[1].trim().split("\\s+")[0];
+                    return afterFrom.replaceAll("[;]", ""); // nom de table détecté
+                }
+            }
+        }
+
+        throw new RuntimeException("Structure inattendue ou requête trop complexe pour la carte " + cardId);
+    }
+
+    public String getTableNameById(int tableId) {
+        String url = METABASE_URL + "/api/table/" + tableId;
+
+        HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders());
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                requestEntity,
+                Map.class
+        );
+
+        Map<String, Object> body = response.getBody();
+        return body != null ? (String) body.get("name") : null;
+    }
+
+
+
 
 
 
@@ -260,8 +330,8 @@ public class MetabaseService {
         // 2. Ajouter la carte au dashboard
         String addCardUrl = METABASE_URL + "/api/dashboard/" + dashboardId + "/cards";
         Map<String, Object> oneCard = Map.of(
-                "id", cardId,             // ✅ bon nom de clé
-                "size_x", 4,              // ✅ bon nom de clé
+                "id", cardId,
+                "size_x", 4,
                 "size_y", 4,
                 "col", 0,
                 "row", 0
