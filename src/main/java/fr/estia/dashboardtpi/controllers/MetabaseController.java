@@ -3,7 +3,9 @@ package fr.estia.dashboardtpi.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.estia.dashboardtpi.services.MetabaseService;
+import fr.estia.dashboardtpi.services.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +18,8 @@ import java.util.Map;
 public class MetabaseController {
 
     private final MetabaseService metabaseService;
+    private final NotificationService notificationService;
+
 
     @PostMapping("/generate-dashboard")
     public ResponseEntity<String> generateDashboard(
@@ -29,6 +33,8 @@ public class MetabaseController {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode json = mapper.readTree(cardResponse);
             int cardId = json.get("id").asInt();
+
+
 
             // 2. Créer un dashboard avec la carte
             String dashboardId = metabaseService.createDashboardWithCard(dashboardName, cardId);
@@ -115,6 +121,78 @@ public class MetabaseController {
             return ResponseEntity.internalServerError().body("❌ Erreur : " + e.getMessage());
         }
     }
+    @PostMapping("/add-existing-card-by-name")
+    public ResponseEntity<String> addExistingCardToDashboard(
+            @RequestParam String dashboardName,
+            @RequestParam String cardName) {
+
+        try {
+            // Ajoute la carte par noms
+            metabaseService.addCardToDashboardByName(dashboardName, cardName);
+
+            return ResponseEntity.ok("✅ Carte ajoutée avec succès à " + dashboardName);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("❌ Erreur : " + e.getMessage());
+        }
+    }
+
+
+/*
+    @PostMapping("/notify-new-dashboard")
+    public ResponseEntity<String> createAndNotify(
+            @RequestParam String tableName,
+            @RequestParam String dashboardName,
+            @RequestParam String cardName,
+            @RequestHeader("Authorization") String token) {
+
+        // Étape 1 : Créer une carte à partir d'une table
+        String cardIdStr = metabaseService.createQuestionFromTable(tableName, cardName);
+        int cardId = Integer.parseInt(cardIdStr); // convertir en entier
+
+        // Étape 2 : Créer un dashboard et y ajouter la carte
+        String dashboardIdStr = metabaseService.createDashboardWithCard(dashboardName, cardId);
+        int dashboardId = Integer.parseInt(dashboardIdStr);
+
+        // Étape 3 : Récupérer le créateur via le token
+        String creator = jwtUtil.extractUsername(token.substring(7));
+
+        // Étape 4 : Envoyer une notification aux utilisateurs
+        notificationService.notifyNewDashboard(dashboardName, creator, dashboardId);
+
+        return ResponseEntity.ok("✅ Dashboard créé et notifications envoyées.");
+    }*/
+@PostMapping("/notify-new-dashboard")
+public ResponseEntity<String> createAndNotify(
+        @RequestParam String tableName,
+        @RequestParam String dashboardName,
+        @RequestParam String cardName,
+        @RequestParam String creator) {  // Utilisation d'un paramètre creator direct
+
+    // Étape 1 : Créer une carte à partir d'une table
+    String cardIdStr = metabaseService.createQuestionFromTable(tableName, cardName);
+    int cardId = Integer.parseInt(cardIdStr); // convertir en entier
+
+    // Étape 2 : Créer un dashboard et y ajouter la carte
+    String dashboardIdStr = metabaseService.createDashboardWithCard(dashboardName, cardId);
+    int dashboardId = Integer.parseInt(dashboardIdStr);
+
+    // Étape 3 : Utiliser directement le nom ou l'email du créateur passé dans la requête
+    String creatorName = creator; // Utilisation de 'creator' directement dans la méthode
+
+    // Étape 4 : Envoyer une notification aux utilisateurs
+    notificationService.notifyNewDashboard(dashboardName, creatorName, dashboardId);
+
+    return ResponseEntity.ok("✅ Dashboard créé et notifications envoyées.");
+}
+
+
+
+
+
+
+
+
 
 
 

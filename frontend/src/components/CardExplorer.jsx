@@ -231,6 +231,7 @@ const CardExplorer = () => {
                         <li onClick={() => navigate("/generate-kpi")}> 📊 Générer les KPI</li>
                         <li onClick={() => navigate("/metabase")}> ➕ Nouvelle question</li>
                         <li onClick={() => navigate("/metabase-viewer")}> Visualiser les dashboards</li>
+                        <li onClick={() => navigate("/add")}> Ajouter un graphique</li>
                         <li onClick={() => navigate("/profile")}>👤 Profil</li>
                         <li
                             onClick={() => {

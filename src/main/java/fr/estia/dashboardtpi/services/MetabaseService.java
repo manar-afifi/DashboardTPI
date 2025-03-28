@@ -343,4 +343,77 @@ public class MetabaseService {
 
         return dashboardId.toString();
     }
+
+
+
+
+
+    public int getDashboardIdByName(String dashboardName) {
+        List<Map<String, Object>> dashboards = getAllDashboards();
+        for (Map<String, Object> dash : dashboards) {
+            if (dashboardName.equalsIgnoreCase((String) dash.get("name"))) {
+                return (Integer) dash.get("id");
+            }
+        }
+        throw new RuntimeException("Dashboard non trouvé : " + dashboardName);
+    }
+
+    public int getCardIdByName(String cardName) {
+        List<Map<String, Object>> cards = getAllCards();
+        for (Map<String, Object> card : cards) {
+            if (cardName.equalsIgnoreCase((String) card.get("name"))) {
+                return (Integer) card.get("id");
+            }
+        }
+        throw new RuntimeException("Carte non trouvée : " + cardName);
+    }
+
+    public void addCardToDashboardByName(String dashboardName, String cardName) {
+        int dashboardId = getDashboardIdByName(dashboardName);
+        int cardId = getCardIdByName(cardName);
+        addCardToDashboard(dashboardId, cardId);
+    }
+    // méthode à corriger côté backend :
+    public void addCardToDashboard(int dashboardId, int cardId) {
+        String token = getMetabaseSessionToken();
+        String url = METABASE_URL + "/api/dashboard/" + dashboardId + "/cards";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Metabase-Session", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> card = Map.of(
+                "id", cardId,
+                "size_x", 4,
+                "size_y", 4,
+                "col", 0,
+                "row", 0
+        );
+
+        Map<String, Object> payload = Map.of("cards", List.of(card));
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(payload, headers);
+
+        restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+
+        // 🛠️ Active l’embed + lien public (important !)
+        enableEmbeddingForCard(cardId);
+        publishCard(cardId);
+    }
+    public void publishDashboard(int dashboardId) {
+        String token = getMetabaseSessionToken();
+        String url = METABASE_URL + "/api/dashboard/" + dashboardId + "/public_link";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-Metabase-Session", token);
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        restTemplate.exchange(url, HttpMethod.POST, entity, Map.class);
+    }
+
+
+
+
+
+
+
 }

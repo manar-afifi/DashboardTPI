@@ -33,3 +33,27 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 }*/
+/*
+package fr.estia.dashboardtpi.security;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwtUtil {
+
+    private final String SECRET_KEY = "your_secret_key"; // 🔐 Mets ici ta vraie clé secrète
+
+    public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(SECRET_KEY.getBytes())
+                .parseClaimsJws(token)
+                .getBody();
+    }
+}*/
+

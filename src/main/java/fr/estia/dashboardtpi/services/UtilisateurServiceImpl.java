@@ -5,6 +5,7 @@ import fr.estia.dashboardtpi.entities.Utilisateur;
 import fr.estia.dashboardtpi.mappers.UtilisateurMapper;
 import fr.estia.dashboardtpi.repositories.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,7 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
     private final UtilisateurRepository utilisateurRepository;
     private final UtilisateurMapper utilisateurMapper;
 
+
     @Override
     public UtilisateurDTO ajouterUtilisateur(UtilisateurDTO utilisateurDTO) {
         // Vérifie si l'email existe déjà
@@ -37,7 +39,29 @@ public class UtilisateurServiceImpl implements IUtilisateurService {
         utilisateurRepository.save(utilisateur);
         return utilisateurDTO;
     }
-/*
+    /*
+@Override
+public UtilisateurDTO ajouterUtilisateur(UtilisateurDTO utilisateurDTO) {
+    // Vérifie si l'email existe déjà
+    if (utilisateurRepository.existsByEmail(utilisateurDTO.getEmail())) {
+        throw new RuntimeException("Erreur : Cet email est déjà utilisé !");
+    }
+
+    // Hacher le mot de passe avant d'enregistrer l'utilisateur
+    String motDePasseHache = passwordEncoder.encode(utilisateurDTO.getMotDepasse());
+    utilisateurDTO.setMotDepasse(motDePasseHache);
+
+    // Convertir le DTO en entité Utilisateur
+    Utilisateur utilisateur = utilisateurMapper.toEntity(utilisateurDTO);
+
+    // Sauvegarder l'utilisateur dans la base de données
+    utilisateurRepository.save(utilisateur);
+
+    return utilisateurDTO;
+}*/
+
+
+    /*
     @Override
     public UtilisateurDTO obtenirUtilisateurParId(Long idUtilisateur) {
         Utilisateur utilisateur = utilisateurRepository.findById(idUtilisateur)

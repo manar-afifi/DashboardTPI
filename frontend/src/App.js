@@ -12,6 +12,8 @@ import CardViewer from "./components/CardViewer";
 import CardExplorer from "./components/CardExplorer";
 import HeroPage from "./components/HeroPage";
 import CardEditor from "./components/CardEditor";
+import AddCardToDashboard from "./components/AddCardToDashboard";
+import AlertRules from "./components/AlertRules";
 
 function App() {
     return (
@@ -30,7 +32,8 @@ function App() {
                 <Route path="/card/:cardId" element={<CardViewer />} />
                 <Route path="/explorer/:cardId" element={<CardExplorer />} />
                 <Route path="/card-editor/:cardId" element={<CardEditor />} />
-
+                <Route path="/add" element={<AddCardToDashboard />} />
+                <Route path="/alert" element={<AlertRules />} />
             </Routes>
         </Router>
     );
