@@ -87,7 +87,7 @@ const MetabaseViewer = () => {
                     <BurgerIcon onClick={() => setSidebarOpen(!sidebarOpen)}>☰</BurgerIcon>
                 </LeftSection>
                 <RightSection>
-                    <Notification>🔔</Notification>
+                    <Notification onClick={() => navigate("/alert")}>🔔</Notification>
                     <ProfileIcon>👤</ProfileIcon>
                 </RightSection>
             </Topbar>

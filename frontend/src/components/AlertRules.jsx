@@ -142,22 +142,32 @@ const AlertRules = () => {
 
         React.createElement("h3", { style: { fontSize: '20px', fontWeight: '600', marginBottom: '15px' } }, "📋 Mes Règles enregistrées"),
         rules.length > 0 ? (
-            rules.map(rule =>
-                React.createElement("div", {
-                        key: rule.id,
-                        style: {
-                            backgroundColor: '#f9f9f9',
-                            borderLeft: '4px solid #7c3aed',
-                            padding: '15px',
-                            marginBottom: '10px',
-                            borderRadius: '10px'
-                        }
-                    },
-                    React.createElement("strong", null, "🔔 ", rule.name),
-                    React.createElement("p", { style: { fontSize: '14px', margin: '4px 0', color: '#444' } },
-                        `${rule.metric} ${rule.condition} ${rule.threshold}`),
-                    React.createElement("p", { style: { fontSize: '14px', color: '#6b21a8' } },
-                        `📩 ${rule.notificationMessage}`)
+            React.createElement("div", {
+                    style: {
+                        maxHeight: '300px',
+                        overflowY: 'auto',
+                        paddingRight: '5px',
+                        scrollbarWidth: 'thin',
+                        scrollBehavior: 'smooth'
+                    }
+                },
+                rules.map(rule =>
+                    React.createElement("div", {
+                            key: rule.id,
+                            style: {
+                                backgroundColor: '#f9f9f9',
+                                borderLeft: '4px solid #7c3aed',
+                                padding: '15px',
+                                marginBottom: '10px',
+                                borderRadius: '10px'
+                            }
+                        },
+                        React.createElement("strong", null, "🔔 ", rule.name),
+                        React.createElement("p", { style: { fontSize: '14px', margin: '4px 0', color: '#444' } },
+                            `${rule.metric} ${rule.condition} ${rule.threshold}`),
+                        React.createElement("p", { style: { fontSize: '14px', color: '#6b21a8' } },
+                            `📩 ${rule.notificationMessage}`)
+                    )
                 )
             )
         ) : (
@@ -165,6 +175,7 @@ const AlertRules = () => {
                 style: { fontStyle: 'italic', color: '#888' }
             }, "Aucune règle encore enregistrée.")
         )
+
     );
 };
 
